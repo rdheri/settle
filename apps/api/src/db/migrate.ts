@@ -26,7 +26,8 @@ async function appliedVersions(client: PoolClient): Promise<Set<string>> {
   return new Set(res.rows.map((r) => r.version));
 }
 
-async function up(): Promise<void> {
+/** Apply all pending migrations. Does NOT close the pool (callable from tests). */
+export async function migrateUp(log = console.log): Promise<void> {
   const client = await pool.connect();
   try {
     await ensureMigrationsTable(client);
@@ -34,51 +35,55 @@ async function up(): Promise<void> {
     const pending = migrationFiles().filter((f) => !applied.has(f));
 
     if (pending.length === 0) {
-      console.log('No pending migrations.');
+      log('No pending migrations.');
       return;
     }
 
     for (const file of pending) {
       const sql = readFileSync(join(MIGRATIONS_DIR, file), 'utf8');
-      process.stdout.write(`Applying ${file} ... `);
       // Each migration is one atomic unit: all-or-nothing.
       await client.query('begin');
       try {
         await client.query(sql);
         await client.query('insert into schema_migrations(version) values ($1)', [file]);
         await client.query('commit');
-        console.log('ok');
+        log(`Applied ${file} ... ok`);
       } catch (err) {
         await client.query('rollback');
-        console.log('FAILED');
+        log(`Applied ${file} ... FAILED`);
         throw err;
       }
     }
-    console.log(`Applied ${pending.length} migration(s).`);
+    log(`Applied ${pending.length} migration(s).`);
   } finally {
     client.release();
   }
 }
 
-async function status(): Promise<void> {
+export async function migrateStatus(log = console.log): Promise<void> {
   const client = await pool.connect();
   try {
     await ensureMigrationsTable(client);
     const applied = await appliedVersions(client);
     for (const file of migrationFiles()) {
-      console.log(`${applied.has(file) ? '[x] applied' : '[ ] pending'}  ${file}`);
+      log(`${applied.has(file) ? '[x] applied' : '[ ] pending'}  ${file}`);
     }
   } finally {
     client.release();
   }
 }
 
-const command = process.argv[2] ?? 'up';
-const action = command === 'status' ? status : up;
+/** CLI entry: `tsx migrate.ts up|status`. Only runs when invoked directly. */
+const invokedDirectly =
+  process.argv[1] !== undefined && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 
-action()
-  .then(() => pool.end())
-  .catch((err: unknown) => {
-    console.error(err);
-    void pool.end().finally(() => process.exit(1));
-  });
+if (invokedDirectly) {
+  const command = process.argv[2] ?? 'up';
+  const action = command === 'status' ? migrateStatus : migrateUp;
+  action()
+    .then(() => pool.end())
+    .catch((err: unknown) => {
+      console.error(err);
+      void pool.end().finally(() => process.exit(1));
+    });
+}
