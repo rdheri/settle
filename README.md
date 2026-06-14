@@ -232,6 +232,25 @@ docker compose up --build      # db + api (api on :3000, reachable inside the ne
 
 ---
 
+## Deploy
+
+The repo ships deploy config for a free, two-service setup:
+
+- **API + Postgres → Render** via [`render.yaml`](render.yaml) (Dockerized API + managed
+  Postgres; migrations run on boot; health check at `/health`).
+- **Dashboard → Vercel** via [`vercel.json`](vercel.json) (static build of `apps/dashboard`).
+
+Steps:
+
+1. **Render** → New → Blueprint → pick this repo. It provisions `settle-db` + `settle-api`.
+   Copy the API URL (e.g. `https://settle-api.onrender.com`).
+2. **Vercel** → New Project → import this repo. Add env var `VITE_API_BASE` = the API URL.
+   Deploy; copy the dashboard URL.
+3. Back on Render, set the API env var `CORS_ORIGIN` = the Vercel URL, and redeploy.
+4. Open the dashboard and click **Generate sample data**.
+
+---
+
 ## Quality bar
 
 - Strict TypeScript (`noUncheckedIndexedAccess`, `verbatimModuleSyntax`). Money is `BIGINT`
