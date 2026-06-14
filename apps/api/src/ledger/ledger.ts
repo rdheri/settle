@@ -224,6 +224,36 @@ export async function getTransaction(client: PoolClient, id: string): Promise<Tr
   return { ...tx, entries: entryRes.rows };
 }
 
+/** Recent transactions with their entries, newest first (for the ledger view). */
+export async function listTransactions(
+  client: PoolClient,
+  limit = 50,
+): Promise<TransactionRecord[]> {
+  const txRes = await client.query<TransactionRow>(
+    `select id, idempotency_key, description, created_at from transactions
+     order by created_at desc, id desc limit $1`,
+    [limit],
+  );
+  if (txRes.rows.length === 0) return [];
+
+  const ids = txRes.rows.map((t) => t.id);
+  const entryRes = await client.query<EntryRow & { transaction_id: string }>(
+    `select id, transaction_id, account_id, amount, direction, created_at from entries
+     where transaction_id = any($1::uuid[]) order by created_at, id`,
+    [ids],
+  );
+
+  const byTx = new Map<string, EntryRow[]>();
+  for (const row of entryRes.rows) {
+    const { transaction_id, ...entry } = row;
+    const list = byTx.get(transaction_id) ?? [];
+    list.push(entry);
+    byTx.set(transaction_id, list);
+  }
+
+  return txRes.rows.map((t) => ({ ...t, entries: byTx.get(t.id) ?? [] }));
+}
+
 export interface ReconciliationResult {
   balanced: boolean;
   global_signed_sum: number;

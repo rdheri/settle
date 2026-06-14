@@ -5,3 +5,6 @@ coverage/
 .env
 .env.local
 .DS_Store
+
+# fault-injection harness output
+apps/api/harness/last-run.json
