@@ -46,6 +46,19 @@ export function registerErrorHandler(app: FastifyInstance): void {
         .join('; ');
       return reply.code(400).send({ error: { code: 'invalid_request', message } });
     }
+    // A serialization failure/deadlock that exhausted the retry budget: this is
+    // retryable, not an internal error. Tell the client to retry (same key is safe).
+    const sqlstate = (err as { code?: unknown }).code;
+    if (sqlstate === '40001' || sqlstate === '40P01') {
+      return reply
+        .code(503)
+        .send({
+          error: {
+            code: 'serialization_conflict',
+            message: 'serialization conflict; please retry',
+          },
+        });
+    }
     // Fastify's own client-side errors (bad JSON, etc.)
     const fe = err as FastifyError;
     if (typeof fe.statusCode === 'number' && fe.statusCode >= 400 && fe.statusCode < 500) {

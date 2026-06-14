@@ -45,7 +45,7 @@ export const config = {
   port: int('PORT', 3000),
   host: process.env.HOST ?? '0.0.0.0',
   /** Bounded retry budget for SERIALIZABLE transactions hitting 40001. */
-  txMaxRetries: int('TX_MAX_RETRIES', 5),
+  txMaxRetries: int('TX_MAX_RETRIES', 8),
   txRetryBaseMs: int('TX_RETRY_BASE_MS', 10),
   /** in_progress idempotency keys older than this are treated as abandoned. */
   idempotencyStaleMs: int('IDEMPOTENCY_STALE_MS', 15000),

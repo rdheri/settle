@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { CreateAccountRequest, CreateTransactionRequest, TransferRequest } from '@settle/shared';
-import { withTx } from '../db/tx';
+import { txMetrics, withTx } from '../db/tx';
 import * as ledger from '../ledger/ledger';
-import { enqueueOutbox, outboxStats } from '../outbox/outbox';
+import { enqueueOutbox, outboxMetrics, outboxStats } from '../outbox/outbox';
 import { readLatestFaultRun } from '../harness/result-store';
 import {
   serializeAccount,
@@ -94,6 +94,12 @@ export function registerRoutes(app: FastifyInstance): void {
   });
 
   app.get('/outbox/stats', async () => withTx((c) => outboxStats(c), READ));
+
+  app.get('/metrics', async () => ({
+    serialization_retries: txMetrics.serializationRetries,
+    deadlock_retries: txMetrics.deadlockRetries,
+    outbox_published: outboxMetrics.published,
+  }));
 
   app.get('/fault-runs/latest', async () => (await readLatestFaultRun()) ?? null);
 }

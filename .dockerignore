@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+*.log
+.env
+.env.local
+apps/api/harness/last-run.json
+apps/dashboard/dist

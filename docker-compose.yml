@@ -18,5 +18,24 @@ services:
       retries: 30
     restart: unless-stopped
 
+  # Optional: run the API in a container too (`docker compose up`). For local dev
+  # you typically run just the db (`pnpm db:up`) and `pnpm dev` on the host.
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: settle-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Inside the compose network the database is reachable at db:5432.
+      DATABASE_URL: postgres://settle:settle@db:5432/settle
+      HOST: 0.0.0.0
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
 volumes:
   settle-pgdata:
