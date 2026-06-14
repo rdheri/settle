@@ -53,7 +53,12 @@ export function AreaChart({
   const area = `${line} L ${W},${H} L 0,${H} Z`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="chart-svg chart-draw" style={{ height }}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="chart-svg chart-draw"
+      style={{ height }}
+    >
       <defs>
         <linearGradient id={`area-${gid}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.34" />
@@ -112,7 +117,12 @@ export function BarChart({
   const bw = W / data.length;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="chart-svg" style={{ height }}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="chart-svg"
+      style={{ height }}
+    >
       {data.map((v, i) => {
         const h = (v / max) * (H - 8);
         const x = i * bw + (bw * gap) / 2;
@@ -207,7 +217,10 @@ export function Sparkline({
   const max = Math.max(...data);
   const range = max - min || 1;
   const pts = data
-    .map((v, i) => `${(i / (data.length - 1)) * width},${height - 3 - ((v - min) / range) * (height - 6)}`)
+    .map(
+      (v, i) =>
+        `${(i / (data.length - 1)) * width},${height - 3 - ((v - min) / range) * (height - 6)}`,
+    )
     .join(' ');
   return (
     <svg width={width} height={height} className="sparkline" aria-hidden>

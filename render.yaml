@@ -1,0 +1,30 @@
+# Render Blueprint: provisions the API (Docker) + a managed Postgres.
+# Deploy: push to GitHub, then Render Dashboard → New → Blueprint → pick this repo.
+databases:
+  - name: settle-db
+    plan: free
+    databaseName: settle
+    user: settle
+
+services:
+  - type: web
+    name: settle-api
+    runtime: docker
+    dockerfilePath: apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: settle-db
+          property: connectionString
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 3000
+      # Set this to your deployed dashboard origin after creating it on Vercel,
+      # e.g. https://settle-yourname.vercel.app
+      - key: CORS_ORIGIN
+        sync: false

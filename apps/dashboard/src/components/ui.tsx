@@ -121,7 +121,10 @@ export function StatCard({
 export function TypeBadge({ type }: { type: AccountType }): React.JSX.Element {
   const color = TYPE_COLORS[type];
   return (
-    <span className="type-badge" style={{ color, borderColor: `${color}40`, background: `${color}14` }}>
+    <span
+      className="type-badge"
+      style={{ color, borderColor: `${color}40`, background: `${color}14` }}
+    >
       {type}
     </span>
   );

@@ -20,7 +20,10 @@ export function Reliability(): React.JSX.Element {
     <div className="page">
       {/* Live invariant proof */}
       <div className="rel-top">
-        <Card className={`proof-card ${recon?.balanced ? 'proof-card-ok' : 'proof-card-bad'}`} index={0}>
+        <Card
+          className={`proof-card ${recon?.balanced ? 'proof-card-ok' : 'proof-card-bad'}`}
+          index={0}
+        >
           <div className="proof-card-icon">
             {recon?.balanced ? <ShieldCheck size={26} /> : <XCircle size={26} />}
           </div>
@@ -32,16 +35,38 @@ export function Reliability(): React.JSX.Element {
             <p className="muted small">
               Global signed sum of all {fmtInt(recon?.entry_count ?? 0)} entries ={' '}
               <span className="mono strong">{fmtInt(recon?.global_signed_sum ?? 0)}</span>
-              {recon?.anomalies.length ? ` · ${recon.anomalies.length} anomalies` : ' · no anomalies'}
+              {recon?.anomalies.length
+                ? ` · ${recon.anomalies.length} anomalies`
+                : ' · no anomalies'}
             </p>
           </div>
         </Card>
 
         <div className="rel-metrics">
-          <MetricTile icon={Repeat} label="Serialization retries" value={metrics?.serialization_retries ?? 0} accent="#6366f1" />
-          <MetricTile icon={CircleSlash} label="Deadlock retries" value={metrics?.deadlock_retries ?? 0} accent="#a78bfa" />
-          <MetricTile icon={Layers} label="Outbox published" value={outbox?.published ?? 0} accent="#22d3ee" />
-          <MetricTile icon={Layers} label="Outbox pending" value={outbox?.pending ?? 0} accent="#fbbf24" />
+          <MetricTile
+            icon={Repeat}
+            label="Serialization retries"
+            value={metrics?.serialization_retries ?? 0}
+            accent="#6366f1"
+          />
+          <MetricTile
+            icon={CircleSlash}
+            label="Deadlock retries"
+            value={metrics?.deadlock_retries ?? 0}
+            accent="#a78bfa"
+          />
+          <MetricTile
+            icon={Layers}
+            label="Outbox published"
+            value={outbox?.published ?? 0}
+            accent="#22d3ee"
+          />
+          <MetricTile
+            icon={Layers}
+            label="Outbox pending"
+            value={outbox?.pending ?? 0}
+            accent="#fbbf24"
+          />
         </div>
       </div>
 
@@ -92,8 +117,17 @@ function HarnessResults({ fault }: { fault: FaultRunSummary }): React.JSX.Elemen
         <BigStat label="Applied exactly once" value={fault.applied_exactly_once} highlight />
         <BigStat label="Duplicates short-circuited" value={fault.duplicates_short_circuited} />
         <BigStat label="Serialization retries" value={fault.serialization_retries} />
-        <BigStat label="Final balance drift" value={fault.final_balance_drift} bad={fault.final_balance_drift !== 0} good={fault.final_balance_drift === 0} />
-        <BigStat label="Throughput (ops/sec)" value={Math.round(fault.throughput_per_sec)} icon={Gauge} />
+        <BigStat
+          label="Final balance drift"
+          value={fault.final_balance_drift}
+          bad={fault.final_balance_drift !== 0}
+          good={fault.final_balance_drift === 0}
+        />
+        <BigStat
+          label="Throughput (ops/sec)"
+          value={Math.round(fault.throughput_per_sec)}
+          icon={Gauge}
+        />
       </div>
 
       <div className="scenario-grid">
@@ -154,10 +188,11 @@ function NoRun(): React.JSX.Element {
   return (
     <EmptyState icon={Zap} title="No harness run recorded yet">
       <p>
-        Run the fault-injection harness to prove exactly-once money movement under concurrency and crash retries:
+        Run the fault-injection harness to verify exactly-once behavior under concurrency and crash
+        retries.
       </p>
       <code className="code-block">pnpm harness</code>
-      <p className="muted small">Results stream here automatically once the run completes.</p>
+      <p className="muted small">Results appear here after the run completes.</p>
     </EmptyState>
   );
 }

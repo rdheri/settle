@@ -3,9 +3,7 @@ import { SLICE_COLORS } from './palette';
 
 /** Sum of the debit legs of a transaction = its "size" / volume. */
 export function txSize(tx: TransactionResponse): number {
-  return tx.entries
-    .filter((e) => e.direction === 'debit')
-    .reduce((sum, e) => sum + e.amount, 0);
+  return tx.entries.filter((e) => e.direction === 'debit').reduce((sum, e) => sum + e.amount, 0);
 }
 
 export function totalAssets(accounts: AccountWithBalance[]): number {

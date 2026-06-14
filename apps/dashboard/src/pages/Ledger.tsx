@@ -86,8 +86,8 @@ export function Ledger(): React.JSX.Element {
           </button>
         </div>
         <p className="muted small">
-          Each transfer is a balanced 2-entry transaction sent with a fresh Idempotency-Key, committed at
-          SERIALIZABLE isolation.
+          Each transfer is a balanced 2-entry transaction sent with a fresh Idempotency-Key,
+          committed at SERIALIZABLE isolation.
         </p>
       </Card>
 
@@ -110,7 +110,11 @@ export function Ledger(): React.JSX.Element {
 
         {filtered.length === 0 ? (
           <EmptyState icon={ListTree} title={query ? 'No matches' : 'No transactions yet'}>
-            <p>{query ? 'Try a different search.' : 'Create a transfer above to populate the ledger.'}</p>
+            <p>
+              {query
+                ? 'Try a different search.'
+                : 'Create a transfer above to populate the ledger.'}
+            </p>
           </EmptyState>
         ) : (
           <div className="timeline">

@@ -50,14 +50,12 @@ export function registerErrorHandler(app: FastifyInstance): void {
     // retryable, not an internal error. Tell the client to retry (same key is safe).
     const sqlstate = (err as { code?: unknown }).code;
     if (sqlstate === '40001' || sqlstate === '40P01') {
-      return reply
-        .code(503)
-        .send({
-          error: {
-            code: 'serialization_conflict',
-            message: 'serialization conflict; please retry',
-          },
-        });
+      return reply.code(503).send({
+        error: {
+          code: 'serialization_conflict',
+          message: 'serialization conflict; please retry',
+        },
+      });
     }
     // Fastify's own client-side errors (bad JSON, etc.)
     const fe = err as FastifyError;

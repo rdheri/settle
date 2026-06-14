@@ -13,7 +13,13 @@ import { AreaChart, BarChart, Donut } from '../components/charts';
 import { Card, CardHeader, EmptyState, Skeleton, StatCard } from '../components/ui';
 import { AnimatedNumber } from '../components/ui';
 import { useData } from '../lib/dataContext';
-import { assetDistribution, cumulativeVolume, totalAssets, txSize, volumeSeries } from '../lib/derive';
+import {
+  assetDistribution,
+  cumulativeVolume,
+  totalAssets,
+  txSize,
+  volumeSeries,
+} from '../lib/derive';
 import { fmtCurrency, fmtCurrencyCompact, fmtInt, fmtRelativeTime } from '../lib/format';
 import { TYPE_COLORS } from '../lib/palette';
 import { seedDemoData } from '../lib/seed';
@@ -54,10 +60,14 @@ export function Overview(): React.JSX.Element {
     return (
       <div className="page">
         <Card>
-          <EmptyState icon={Sparkles} title="Your ledger is empty">
-            <p>Generate a realistic sample ledger to see balances, charts, and the live reconciliation proof in action.</p>
-            <button className="btn btn-primary" disabled={seeding} onClick={() => void handleSeed()}>
-              {seeding ? 'Generating…' : 'Generate sample ledger'}
+          <EmptyState icon={Sparkles} title="No accounts yet">
+            <p>Generate sample data to populate balances, charts, and the reconciliation view.</p>
+            <button
+              className="btn btn-primary"
+              disabled={seeding}
+              onClick={() => void handleSeed()}
+            >
+              {seeding ? 'Generating…' : 'Generate sample data'}
             </button>
           </EmptyState>
         </Card>
@@ -84,7 +94,8 @@ export function Overview(): React.JSX.Element {
               {recon?.balanced ? 'Books balanced' : 'Drift detected'}
             </span>
             <span className="muted">
-              {fmtInt(recon?.transaction_count ?? 0)} transactions · {fmtInt(recon?.entry_count ?? 0)} entries
+              {fmtInt(recon?.transaction_count ?? 0)} transactions ·{' '}
+              {fmtInt(recon?.entry_count ?? 0)} entries
             </span>
           </div>
         </Card>
@@ -100,18 +111,46 @@ export function Overview(): React.JSX.Element {
             {recon?.global_signed_sum === 0 && <span className="proof-check">✓</span>}
           </div>
           <p className="muted small">
-            Every debit is matched by a credit, so the signed sum of all {fmtInt(recon?.entry_count ?? 0)} entries is
-            exactly zero — the books are provably consistent.
+            Every debit is matched by a credit, so the signed sum of all{' '}
+            {fmtInt(recon?.entry_count ?? 0)} entries is zero. The books reconcile.
           </p>
         </Card>
       </div>
 
       {/* KPIs */}
       <div className="kpi-grid">
-        <StatCard label="Total assets" value={assets} format={fmtCurrencyCompact} icon={Coins} accent={TYPE_COLORS.asset} index={0} />
-        <StatCard label="Transactions" value={recon?.transaction_count ?? 0} format={fmtInt} icon={ArrowLeftRight} accent="#6366f1" index={1} />
-        <StatCard label="Ledger entries" value={recon?.entry_count ?? 0} format={fmtInt} icon={Database} accent="#22d3ee" index={2} />
-        <StatCard label="Events published" value={outbox?.published ?? 0} format={fmtInt} icon={Send} accent="#a78bfa" index={3} />
+        <StatCard
+          label="Total assets"
+          value={assets}
+          format={fmtCurrencyCompact}
+          icon={Coins}
+          accent={TYPE_COLORS.asset}
+          index={0}
+        />
+        <StatCard
+          label="Transactions"
+          value={recon?.transaction_count ?? 0}
+          format={fmtInt}
+          icon={ArrowLeftRight}
+          accent="#6366f1"
+          index={1}
+        />
+        <StatCard
+          label="Ledger entries"
+          value={recon?.entry_count ?? 0}
+          format={fmtInt}
+          icon={Database}
+          accent="#22d3ee"
+          index={2}
+        />
+        <StatCard
+          label="Events published"
+          value={outbox?.published ?? 0}
+          format={fmtInt}
+          icon={Send}
+          accent="#a78bfa"
+          index={3}
+        />
       </div>
 
       {/* Charts */}
@@ -155,7 +194,11 @@ export function Overview(): React.JSX.Element {
         />
         <div className="activity-list">
           {recent.map((tx, i) => (
-            <div key={tx.id} className="activity-row rise" style={{ animationDelay: `${i * 40}ms` }}>
+            <div
+              key={tx.id}
+              className="activity-row rise"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
               <div className="activity-icon">
                 <ArrowLeftRight size={15} />
               </div>

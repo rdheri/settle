@@ -46,14 +46,22 @@ export function Accounts(): React.JSX.Element {
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void create()}
           />
-          <select className="input select" value={type} onChange={(e) => setType(e.target.value as AccountType)}>
+          <select
+            className="input select"
+            value={type}
+            onChange={(e) => setType(e.target.value as AccountType)}
+          >
             {TYPES.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
             ))}
           </select>
-          <button className="btn btn-primary" disabled={busy || !name.trim()} onClick={() => void create()}>
+          <button
+            className="btn btn-primary"
+            disabled={busy || !name.trim()}
+            onClick={() => void create()}
+          >
             {busy ? 'Creating…' : 'Create account'}
           </button>
         </div>
@@ -85,7 +93,9 @@ export function Accounts(): React.JSX.Element {
                     <td>
                       <TypeBadge type={a.type} />
                     </td>
-                    <td className={`num mono ${a.balance < 0 ? 'neg' : ''}`}>{fmtCurrency(a.balance)}</td>
+                    <td className={`num mono ${a.balance < 0 ? 'neg' : ''}`}>
+                      {fmtCurrency(a.balance)}
+                    </td>
                     <td className="bar-col">
                       <div className="bar-track">
                         <div

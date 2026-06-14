@@ -1,14 +1,17 @@
 import { api } from './api';
 import type { AccountResponse } from './api';
 
-const rand = (min: number, max: number): number => Math.floor(Math.random() * (max - min + 1)) + min;
+const rand = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 const pick = <T>(arr: T[]): T => arr[rand(0, arr.length - 1)]!;
 
 /**
  * Create a realistic sample ledger so the dashboard's charts and tables are
  * populated. Every write is idempotent and balanced — this exercises the real API.
  */
-export async function seedDemoData(onProgress?: (done: number, total: number) => void): Promise<void> {
+export async function seedDemoData(
+  onProgress?: (done: number, total: number) => void,
+): Promise<void> {
   const equity = await api.createAccount('Equity Capital', 'equity');
   const revenue = await api.createAccount('Sales Revenue', 'revenue');
   const expense = await api.createAccount('Operating Expense', 'expense');
@@ -39,7 +42,12 @@ export async function seedDemoData(onProgress?: (done: number, total: number) =>
         // Revenue: debit an asset, credit revenue.
         const amount = rand(50, 4000) * 100;
         await api.createTransaction({
-          description: pick(['Card settlement', 'Invoice paid', 'Subscription charge', 'Payout received']),
+          description: pick([
+            'Card settlement',
+            'Invoice paid',
+            'Subscription charge',
+            'Payout received',
+          ]),
           entries: [
             { account_id: pick(assets).id, amount, direction: 'debit' },
             { account_id: revenue.id, amount, direction: 'credit' },
