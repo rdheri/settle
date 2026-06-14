@@ -72,6 +72,19 @@ export function registerRoutes(app: FastifyInstance): void {
 
   // --- Reads ---
 
+  app.get('/accounts', async () => {
+    const accounts = await withTx((c) => ledger.listAccounts(c), READ);
+    return {
+      accounts: accounts.map((a) => ({
+        id: a.id,
+        name: a.name,
+        type: a.type,
+        created_at: a.created_at.toISOString(),
+        balance: a.balance,
+      })),
+    };
+  });
+
   app.get<{ Params: { id: string } }>('/accounts/:id/balance', async (req) => {
     const result = await withTx((c) => ledger.getAccountBalance(c, req.params.id), READ);
     return serializeBalance(result);
@@ -82,10 +95,16 @@ export function registerRoutes(app: FastifyInstance): void {
     return serializeTransaction(tx);
   });
 
-  app.get<{ Querystring: { limit?: string } }>('/transactions', async (req) => {
+  app.get<{ Querystring: { limit?: string; offset?: string } }>('/transactions', async (req) => {
     const limit = Math.min(Math.max(Number(req.query.limit ?? 50) || 50, 1), 500);
-    const txs = await withTx((c) => ledger.listTransactions(c, limit), READ);
-    return { transactions: txs.map(serializeTransaction) };
+    const offset = Math.max(Number(req.query.offset ?? 0) || 0, 0);
+    const page = await withTx((c) => ledger.listTransactions(c, limit, offset), READ);
+    return {
+      transactions: page.transactions.map(serializeTransaction),
+      total: page.total,
+      limit: page.limit,
+      offset: page.offset,
+    };
   });
 
   app.get('/reconciliation', async () => {

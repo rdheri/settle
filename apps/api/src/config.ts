@@ -51,6 +51,11 @@ export const config = {
   idempotencyStaleMs: int('IDEMPOTENCY_STALE_MS', 15000),
   outboxPollIntervalMs: int('OUTBOX_POLL_INTERVAL_MS', 500),
   outboxBatchSize: int('OUTBOX_BATCH_SIZE', 100),
+  /** CORS allow-list. '*' for local dev; set an explicit origin in production. */
+  corsOrigin: process.env.CORS_ORIGIN ?? '*',
+  /** Per-IP request budget; generous by default, raised to ~unbounded for the harness. */
+  rateLimitMax: int('RATE_LIMIT_MAX', 1200),
+  rateLimitWindow: process.env.RATE_LIMIT_WINDOW ?? '1 minute',
 } as const;
 
 export type Config = typeof config;

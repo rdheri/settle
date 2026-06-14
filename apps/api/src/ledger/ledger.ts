@@ -224,17 +224,51 @@ export async function getTransaction(client: PoolClient, id: string): Promise<Tr
   return { ...tx, entries: entryRes.rows };
 }
 
-/** Recent transactions with their entries, newest first (for the ledger view). */
+/** All accounts with their derived balance (newest first), for the accounts view. */
+export async function listAccounts(
+  client: PoolClient,
+): Promise<{ id: string; name: string; type: AccountType; created_at: Date; balance: number }[]> {
+  const res = await client.query<{
+    id: string;
+    name: string;
+    type: AccountType;
+    created_at: Date;
+    balance: number;
+  }>(
+    `select a.id, a.name, a.type, a.created_at,
+       coalesce(sum(case e.direction when 'debit' then e.amount else -e.amount end), 0)::bigint as balance
+     from accounts a
+     left join entries e on e.account_id = a.id
+     group by a.id, a.name, a.type, a.created_at
+     order by a.created_at, a.id`,
+  );
+  return res.rows;
+}
+
+export interface TransactionPage {
+  transactions: TransactionRecord[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/** Paginated transactions with their entries, newest first (for the ledger view). */
 export async function listTransactions(
   client: PoolClient,
   limit = 50,
-): Promise<TransactionRecord[]> {
+  offset = 0,
+): Promise<TransactionPage> {
+  const totalRes = await client.query<{ count: number }>(
+    `select count(*)::int as count from transactions`,
+  );
+  const total = totalRes.rows[0]!.count;
+
   const txRes = await client.query<TransactionRow>(
     `select id, idempotency_key, description, created_at from transactions
-     order by created_at desc, id desc limit $1`,
-    [limit],
+     order by created_at desc, id desc limit $1 offset $2`,
+    [limit, offset],
   );
-  if (txRes.rows.length === 0) return [];
+  if (txRes.rows.length === 0) return { transactions: [], total, limit, offset };
 
   const ids = txRes.rows.map((t) => t.id);
   const entryRes = await client.query<EntryRow & { transaction_id: string }>(
@@ -251,7 +285,8 @@ export async function listTransactions(
     byTx.set(transaction_id, list);
   }
 
-  return txRes.rows.map((t) => ({ ...t, entries: byTx.get(t.id) ?? [] }));
+  const transactions = txRes.rows.map((t) => ({ ...t, entries: byTx.get(t.id) ?? [] }));
+  return { transactions, total, limit, offset };
 }
 
 export interface ReconciliationResult {

@@ -317,7 +317,7 @@ async function waitForHealth(timeoutMs: number): Promise<boolean> {
 function startServer(): ChildProcess {
   return spawn('pnpm', ['exec', 'tsx', 'src/index.ts'], {
     cwd: API_DIR,
-    env: { ...process.env, PORT, HOST: '127.0.0.1', PG_POOL_MAX: '48' },
+    env: { ...process.env, PORT, HOST: '127.0.0.1', PG_POOL_MAX: '48', RATE_LIMIT_MAX: '1000000' },
     stdio: ['ignore', 'ignore', 'inherit'],
   });
 }

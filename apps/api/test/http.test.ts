@@ -180,4 +180,32 @@ describe('HTTP API', () => {
     expect(txs.length).toBe(2);
     expect(txs[0]!.entries).toHaveLength(2);
   });
+
+  it('lists accounts with derived balances', async () => {
+    const equity = await createAccount('Equity', 'equity');
+    const cash = await createAccount('Cash', 'asset');
+    await fund(cash, equity, 4200);
+
+    const res = await app.inject({ method: 'GET', url: '/accounts' });
+    expect(res.statusCode).toBe(200);
+    const accounts = res.json().accounts as { id: string; balance: number }[];
+    expect(accounts.find((a) => a.id === cash)?.balance).toBe(4200);
+  });
+
+  it('paginates transactions and reports the total', async () => {
+    const equity = await createAccount('Equity', 'equity');
+    const cash = await createAccount('Cash', 'asset');
+    await fund(cash, equity, 1000);
+    await fund(cash, equity, 2000);
+
+    const res = await app.inject({ method: 'GET', url: '/transactions?limit=1&offset=0' });
+    const body = res.json() as { total: number; transactions: unknown[] };
+    expect(body.total).toBe(2);
+    expect(body.transactions).toHaveLength(1);
+  });
+
+  it('sets hardening headers (helmet)', async () => {
+    const res = await app.inject({ method: 'GET', url: '/health' });
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
 });

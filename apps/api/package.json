@@ -15,6 +15,9 @@
     "harness": "tsx harness/fault-injection.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/helmet": "^12.0.1",
+    "@fastify/rate-limit": "^10.2.1",
     "@settle/shared": "workspace:*",
     "fastify": "^5.2.0",
     "pg": "^8.13.1",
