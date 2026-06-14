@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: settle-db
+    environment:
+      POSTGRES_USER: settle
+      POSTGRES_PASSWORD: settle
+      POSTGRES_DB: settle
+    # Host 5433 -> container 5432 to avoid clashing with a local Postgres on 5432.
+    ports:
+      - '5433:5432'
+    volumes:
+      - settle-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U settle -d settle']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+volumes:
+  settle-pgdata:
