@@ -116,4 +116,27 @@ export interface ApiError {
   };
 }
 
+// --- Fault-injection harness summary (produced by the harness, shown on the UI) ---
+
+export interface FaultScenarioResult {
+  name: string;
+  description: string;
+  passed: boolean;
+  metrics: Record<string, number | string | boolean>;
+}
+
+export interface FaultRunSummary {
+  started_at: string;
+  finished_at: string;
+  duration_ms: number;
+  passed: boolean;
+  operations_attempted: number;
+  applied_exactly_once: number;
+  duplicates_short_circuited: number;
+  serialization_retries: number;
+  final_balance_drift: number;
+  throughput_per_sec: number;
+  scenarios: FaultScenarioResult[];
+}
+
 export const SETTLE_VERSION = '0.0.0';
